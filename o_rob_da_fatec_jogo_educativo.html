@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Robô da Fatec - Destrave as Portas!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #0f172a;
+            /* Fundo simulando um laboratório sci-fi */
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Animação de flutuação para o robô */
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Animação para os olhos piscando */
+        .animate-blink {
+            animation: blink 4s infinite;
+        }
+        @keyframes blink {
+            0%, 96%, 98%, 100% { opacity: 1; }
+            97%, 99% { opacity: 0; }
+        }
+
+        /* Animação de erro (Tremida na porta) */
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        /* Animação das portas abrindo */
+        .door-transition {
+            transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        /* Efeito de brilho neon no painel */
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+
+        /* Oculta as setas de incremento do input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-slate-800 p-4">
+
+    <!-- Contêiner Principal do Jogo -->
+    <main class="w-full max-w-5xl bg-slate-900 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-700 overflow-hidden flex flex-col lg:flex-row">
+        
+        <!-- Lado Esquerdo: A Porta do Laboratório -->
+        <section class="flex-1 p-8 relative flex flex-col items-center justify-center min-h-[400px] border-b-4 lg:border-b-0 lg:border-r-4 border-slate-700 bg-slate-800">
+            
+            <h1 class="text-2xl font-black text-cyan-400 mb-6 uppercase tracking-widest text-center drop-shadow-md z-20 relative">Laboratório da Fatec</h1>
+            
+            <!-- Moldura da Porta -->
+            <div id="door-frame" class="relative w-full max-w-sm h-72 bg-slate-900 border-8 border-slate-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner">
+                
+                <!-- Fundo de Sucesso (Interior do Laboratório) -->
+                <div id="success-bg" class="absolute inset-0 bg-emerald-500 flex flex-col items-center justify-center opacity-0 transition-opacity duration-1000 z-0">
+                    <svg class="w-20 h-20 text-white mb-2 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    <span class="text-3xl font-black text-white drop-shadow-lg text-center uppercase tracking-wide">Acesso<br>Liberado!</span>
+                </div>
+
+                <!-- Porta Esquerda -->
+                <div id="door-left" class="door-transition absolute left-0 top-0 bottom-0 w-1/2 bg-slate-700 border-r-4 border-slate-800 flex items-center justify-end z-10 shadow-[5px_0_15px_rgba(0,0,0,0.5)]">
+                    <div class="w-3 h-20 bg-slate-900 rounded-l-md mr-1 shadow-inner"></div>
+                </div>
+                
+                <!-- Porta Direita -->
+                <div id="door-right" class="door-transition absolute right-0 top-0 bottom-0 w-1/2 bg-slate-700 border-l-4 border-slate-800 flex items-center justify-start z-10 shadow-[-5px_0_15px_rgba(0,0,0,0.5)]">
+                    <div class="w-3 h-20 bg-slate-900 rounded-r-md ml-1 shadow-inner"></div>
+                </div>
+
+                <!-- Painel de Controle (Conta Matemática) -->
+                <div id="math-panel" class="absolute z-20 flex flex-col items-center p-6 bg-slate-800 border-4 border-cyan-500 rounded-2xl neon-glow transition-all duration-500">
+                    <div class="text-cyan-400 text-sm font-bold mb-1 uppercase tracking-wider">Senha Necessária</div>
+                    
+                    <!-- Exibição da Conta -->
+                    <div id="problem-display" class="text-5xl md:text-6xl font-black text-white mb-4 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] tracking-wide">
+                        ? + ?
+                    </div>
+                    
+                    <!-- Formulário de Resposta -->
+                    <form id="answer-form" class="flex gap-2 w-full">
+                        <input type="number" id="answer-input" required placeholder="0" class="w-full text-center text-3xl font-bold rounded-lg border-2 border-cyan-500 bg-slate-900 text-cyan-300 focus:outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300 transition-all shadow-inner placeholder-slate-700">
+                        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-black text-lg py-2 px-6 rounded-lg border-b-4 border-cyan-700 active:border-b-0 active:translate-y-1 transition-all">
+                            OK
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lado Direito: O Robô e as Dicas -->
+        <section class="flex-1 p-8 bg-slate-100 relative flex flex-col items-center justify-center">
+            
+            <!-- Balão de Fala -->
+            <div class="relative w-full max-w-md bg-white border-4 border-slate-300 rounded-3xl p-5 shadow-lg mb-8 min-h-[100px] flex items-center justify-center transform transition-transform hover:scale-105 duration-300 z-10">
+                <!-- Setinha do balão apontando para baixo -->
+                <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[20px] border-t-white drop-shadow-md z-10"></div>
+                <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[18px] border-l-transparent border-r-[18px] border-r-transparent border-t-[24px] border-t-slate-300 z-0"></div>
+                
+                <p id="speech-text" class="text-xl font-bold text-slate-700 text-center leading-relaxed">
+                    Olá! Eu sou o Robô da Fatec. Houve um bug e as portas travaram! Resolva a continha para destrancar.
+                </p>
+            </div>
+
+            <!-- Mascote Robô (SVG criado via código) -->
+            <div id="robot-container" class="relative">
+                <svg viewBox="0 0 100 100" class="w-48 h-48 drop-shadow-2xl animate-float">
+                    <!-- Antena -->
+                    <line x1="50" y1="25" x2="50" y2="10" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="50" cy="8" r="5" fill="#EF4444" class="animate-pulse"/>
+                    <!-- Orelhas (Parafusos) -->
+                    <rect x="20" y="45" width="5" height="15" rx="2" fill="#94A3B8"/>
+                    <rect x="75" y="45" width="5" height="15" rx="2" fill="#94A3B8"/>
+                    <!-- Cabeça -->
+                    <rect x="25" y="25" width="50" height="45" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="3"/>
+                    <rect x="30" y="35" width="40" height="20" rx="6" fill="#0F172A"/>
+                    <!-- Olhos -->
+                    <circle cx="40" cy="45" r="4" fill="#38BDF8" class="animate-blink"/>
+                    <circle cx="60" cy="45" r="4" fill="#38BDF8" class="animate-blink"/>
+                    <!-- Boca feliz -->
+                    <path id="robot-mouth" d="M 40 58 Q 50 63 60 58" stroke="#334155" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <!-- Corpo -->
+                    <path d="M 30 75 Q 50 70 70 75 L 65 95 L 35 95 Z" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="3"/>
+                    <!-- Painel do Corpo -->
+                    <circle cx="50" cy="85" r="6" fill="#10B981"/>
+                </svg>
+            </div>
+
+            <!-- Contêiner de Dica Visual (Oculto inicialmente) -->
+            <div id="visual-hint-container" class="hidden w-full max-w-md mt-6 bg-white rounded-2xl border-2 border-dashed border-slate-300 p-4 shadow-sm transition-all duration-500 opacity-0 transform translate-y-4">
+                <p class="text-sm font-bold text-slate-400 text-center mb-3 uppercase tracking-wider">Ajuda Visual</p>
+                <div id="visual-hint-area" class="flex flex-wrap justify-center items-center gap-2">
+                    <!-- Formas geradas pelo JS aparecerão aqui -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Referências do DOM
+            const problemDisplay = document.getElementById('problem-display');
+            const answerInput = document.getElementById('answer-input');
+            const answerForm = document.getElementById('answer-form');
+            const speechText = document.getElementById('speech-text');
+            const doorFrame = document.getElementById('door-frame');
+            const doorLeft = document.getElementById('door-left');
+            const doorRight = document.getElementById('door-right');
+            const mathPanel = document.getElementById('math-panel');
+            const successBg = document.getElementById('success-bg');
+            const visualHintContainer = document.getElementById('visual-hint-container');
+            const visualHintArea = document.getElementById('visual-hint-area');
+            const robotMouth = document.getElementById('robot-mouth');
+
+            // Estado do Jogo
+            let currentProblem = { n1: 0, n2: 0, op: '+', answer: 0 };
+            let errorCount = 0;
+            let isAnimating = false; // Previne múltiplos envios durante animações
+
+            // Gera um número aleatório entre min e max (inclusivo)
+            const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+            // Função principal de geração de problemas
+            function generateProblem() {
+                const operators = ['+', '-', 'x'];
+                const op = operators[Math.floor(Math.random() * operators.length)];
+                let n1, n2, answer;
+
+                // Lógica adaptada para crianças
+                if (op === '+') {
+                    // Soma simples: resultados até 20
+                    n1 = randomInt(1, 10);
+                    n2 = randomInt(1, 10);
+                    answer = n1 + n2;
+                } else if (op === '-') {
+                    // Subtração: sem números negativos
+                    n1 = randomInt(5, 15);
+                    n2 = randomInt(1, n1); // n2 sempre menor ou igual a n1
+                    answer = n1 - n2;
+                } else if (op === 'x') {
+                    // Multiplicação: números pequenos para facilitar representação visual
+                    n1 = randomInt(2, 5);
+                    n2 = randomInt(2, 5);
+                    answer = n1 * n2;
+                }
+
+                currentProblem = { n1, n2, op, answer };
+                problemDisplay.textContent = `${n1} ${op} ${n2}`;
+                
+                // Reseta estado da interface
+                errorCount = 0;
+                answerInput.value = '';
+                visualHintContainer.classList.add('hidden', 'opacity-0', 'translate-y-4');
+                speechText.innerHTML = "Nova porta detectada!<br>Qual é a resposta da continha?";
+                robotMouth.setAttribute('d', 'M 40 58 Q 50 63 60 58'); // Sorriso normal
+                answerInput.focus();
+            }
+
+            
+            // Retorna o texto da dica de Lógica (1º Erro)
+            function getLogicHint(n1, n2, op) {
+                if (op === '+') {
+                    return `Pense assim: se você tem <b>${n1}</b> bloquinhos e ganha mais <b>${n2}</b>, com quantos você fica no total? Conte nos dedos!`;
+                } else if (op === '-') {
+                    return `Imagine que você tem <b>${n1}</b> balas. Se você comer <b>${n2}</b> delas, quantas vão sobrar para depois?`;
+                } else if (op === 'x') {
+                    let additionArr = Array(n1).fill(n2);
+                    let additionStr = additionArr.join(' + ');
+                    return `Multiplicar é somar várias vezes! É a mesma coisa que fazer:<br><b>${additionStr}</b>.<br>Quanto dá?`;
+                }
+            }
+
+            // Gera o HTML da dica Visual (2º Erro)
+            function drawVisualHint(n1, n2, op) {
+                let html = '';
+                
+                if (op === '+') {
+                    // Desenha círculos azuis + círculos verdes
+                    html += `<div class="flex flex-wrap justify-center items-center gap-1">`;
+                    for(let i=0; i<n1; i++) {
+                        html += `<div class="w-6 h-6 rounded-full bg-blue-400 shadow-sm border-2 border-blue-500 transform transition hover:scale-110"></div>`;
+                    }
+                    html += `<div class="text-3xl font-black text-slate-300 mx-2">+</div>`;
+                    for(let i=0; i<n2; i++) {
+                        html += `<div class="w-6 h-6 rounded-full bg-green-400 shadow-sm border-2 border-green-500 transform transition hover:scale-110"></div>`;
+                    }
+                    html += `</div>`;
+                } 
+                else if (op === '-') {
+                    // Desenha o total e faz um "X" nos que foram subtraídos
+                    html += `<div class="flex flex-wrap justify-center gap-2">`;
+                    for(let i=0; i<n1; i++) {
+                        if (i < (n1 - n2)) {
+                            // Sobraram
+                            html += `<div class="w-6 h-6 rounded bg-orange-400 shadow-sm border-2 border-orange-500"></div>`;
+                        } else {
+                            // Subtraídos (marcados com X)
+                            html += `<div class="relative w-6 h-6 rounded bg-slate-200 border-2 border-slate-300 opacity-60">
+                                <div class="absolute inset-0 flex justify-center items-center">
+                                    <div class="w-full h-1 bg-red-500 rotate-45 absolute rounded"></div>
+                                    <div class="w-full h-1 bg-red-500 -rotate-45 absolute rounded"></div>
+                                </div>
+                            </div>`;
+                        }
+                    }
+                    html += `</div>`;
+                } 
+                else if (op === 'x') {
+                    // Desenha grupos
+                    html += `<div class="flex flex-wrap justify-center gap-3">`;
+                    for(let i=0; i<n1; i++) {
+                        html += `<div class="flex gap-1 p-2 bg-purple-100 rounded-xl border-2 border-purple-200">`;
+                        for(let j=0; j<n2; j++) {
+                            html += `<div class="w-5 h-5 rounded-full bg-purple-500 shadow-sm"></div>`;
+                        }
+                        html += `</div>`;
+                    }
+                    html += `</div>`;
+                }
+                return html;
+            }
+
+            // Gerencia as falhas e exibe as dicas progressivas
+            function handleMistake() {
+                errorCount++;
+                
+                // Animação de erro na porta
+                doorFrame.classList.remove('shake');
+                void doorFrame.offsetWidth; // Trigger reflow
+                doorFrame.classList.add('shake');
+                answerInput.value = '';
+                answerInput.focus();
+
+                // Expressão triste/preocupada no robô
+                robotMouth.setAttribute('d', 'M 40 60 Q 50 55 60 60');
+
+                if (errorCount === 1) {
+                    // 1º Erro: Dica de Lógica (Texto)
+                    speechText.innerHTML = getLogicHint(currentProblem.n1, currentProblem.n2, currentProblem.op);
+                } 
+                else if (errorCount >= 2) {
+                    // 2º Erro ou mais: Dica Visual
+                    speechText.innerHTML = "Não desista! Olhe o <b>desenho</b> aqui embaixo e conte comigo para acharmos a resposta.";
+                    visualHintArea.innerHTML = drawVisualHint(currentProblem.n1, currentProblem.n2, currentProblem.op);
+                    
+                    // Mostra o contêiner com transição suave
+                    visualHintContainer.classList.remove('hidden');
+                    // Pequeno delay para a classe de animação do Tailwind funcionar
+                    setTimeout(() => {
+                        visualHintContainer.classList.remove('opacity-0', 'translate-y-4');
+                    }, 50);
+                }
+            }
+
+            
+            // Gerencia o acerto e a animação da porta
+            function handleSuccess() {
+                isAnimating = true;
+                
+                // Robô muito feliz
+                robotMouth.setAttribute('d', 'M 35 55 Q 50 70 65 55');
+                speechText.innerHTML = "🎉 <b>ISSO AÍ!</b> Acesso liberado! Preparando a próxima porta...";
+                visualHintContainer.classList.add('opacity-0');
+
+                // Animação da Porta
+                mathPanel.classList.add('opacity-0', 'scale-75', 'pointer-events-none');
+                
+                // Abre as metades
+                doorLeft.classList.add('-translate-x-full');
+                doorRight.classList.add('translate-x-full');
+                
+                // Revela fundo verde de sucesso
+                successBg.classList.remove('opacity-0');
+
+                // Aguarda a animação e gera a próxima conta
+                setTimeout(() => {
+                    // Fecha a porta para a nova conta
+                    doorLeft.classList.remove('-translate-x-full');
+                    doorRight.classList.remove('translate-x-full');
+                    successBg.classList.add('opacity-0');
+                    
+                    // Restaura o painel matemático após a porta fechar
+                    setTimeout(() => {
+                        mathPanel.classList.remove('opacity-0', 'scale-75', 'pointer-events-none');
+                        generateProblem();
+                        isAnimating = false;
+                    }, 800); // tempo que a porta demora pra fechar
+
+                }, 3000); // Tempo que a porta fica aberta mostrando "Acesso Liberado"
+            }
+
+            // Event Listener do Formulário
+            answerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (isAnimating) return;
+
+                const userAnswer = parseInt(answerInput.value, 10);
+                
+                if (isNaN(userAnswer)) {
+                    answerInput.focus();
+                    return; // Ignora se estiver vazio
+                }
+
+                if (userAnswer === currentProblem.answer) {
+                    handleSuccess();
+                } else {
+                    handleMistake();
+                }
+            });
+
+            // Inicializa a primeira conta
+            generateProblem();
+        });
+    </script>
+</body>
+</html>
