@@ -5,18 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>O Robô da Fatec - Destrave as Portas!</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fira+Code:wght@600&display=swap" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Nunito', sans-serif;
             background-color: #0f172a;
-            /* Fundo simulando um laboratório sci-fi */
             background-image: radial-gradient(#1e293b 1px, transparent 1px);
             background-size: 30px 30px;
         }
 
-        /* Animação de flutuação para o robô */
         .animate-float {
             animation: float 4s ease-in-out infinite;
         }
@@ -26,7 +24,6 @@
             100% { transform: translateY(0px); }
         }
 
-        /* Animação para os olhos piscando */
         .animate-blink {
             animation: blink 4s infinite;
         }
@@ -35,7 +32,6 @@
             97%, 99% { opacity: 0; }
         }
 
-        /* Animação de erro (Tremida na porta) */
         .shake {
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
@@ -46,68 +42,75 @@
             40%, 60% { transform: translate3d(6px, 0, 0); }
         }
 
-        /* Animação das portas abrindo */
         .door-transition {
             transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1);
         }
 
-        /* Efeito de brilho neon no painel */
         .neon-glow {
             box-shadow: 0 0 15px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(6, 182, 212, 0.2);
         }
 
-        /* Oculta as setas de incremento do input number */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
         input[type=number] {
             -moz-appearance: textfield;
+        }
+
+        /* Estilização extra para a barra de rolagem das dicas */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center text-slate-800 p-4">
 
-    <!-- Contêiner Principal do Jogo -->
     <main class="w-full max-w-5xl bg-slate-900 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-700 overflow-hidden flex flex-col lg:flex-row">
-        
+
         <!-- Lado Esquerdo: A Porta do Laboratório -->
-        <section class="flex-1 p-8 relative flex flex-col items-center justify-center min-h-[400px] border-b-4 lg:border-b-0 lg:border-r-4 border-slate-700 bg-slate-800">
-            
-            <h1 class="text-2xl font-black text-cyan-400 mb-6 uppercase tracking-widest text-center drop-shadow-md z-20 relative">Laboratório da Fatec</h1>
-            
-            <!-- Moldura da Porta -->
-            <div id="door-frame" class="relative w-full max-w-sm h-72 bg-slate-900 border-8 border-slate-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner">
-                
-                <!-- Fundo de Sucesso (Interior do Laboratório) -->
+        <section class="flex-1 p-8 relative flex flex-col items-center justify-center min-h-[450px] border-b-4 lg:border-b-0 lg:border-r-4 border-slate-700 bg-slate-800">
+
+            <h1 class="text-2xl font-black text-cyan-400 mb-6 uppercase tracking-widest text-center drop-shadow-md z-20 relative">Laboratório Avançado</h1>
+
+            <div id="door-frame" class="relative w-full max-w-md h-80 bg-slate-900 border-8 border-slate-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner">
+
                 <div id="success-bg" class="absolute inset-0 bg-emerald-500 flex flex-col items-center justify-center opacity-0 transition-opacity duration-1000 z-0">
                     <svg class="w-20 h-20 text-white mb-2 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     <span class="text-3xl font-black text-white drop-shadow-lg text-center uppercase tracking-wide">Acesso<br>Liberado!</span>
                 </div>
 
-                <!-- Porta Esquerda -->
                 <div id="door-left" class="door-transition absolute left-0 top-0 bottom-0 w-1/2 bg-slate-700 border-r-4 border-slate-800 flex items-center justify-end z-10 shadow-[5px_0_15px_rgba(0,0,0,0.5)]">
                     <div class="w-3 h-20 bg-slate-900 rounded-l-md mr-1 shadow-inner"></div>
                 </div>
-                
-                <!-- Porta Direita -->
+
                 <div id="door-right" class="door-transition absolute right-0 top-0 bottom-0 w-1/2 bg-slate-700 border-l-4 border-slate-800 flex items-center justify-start z-10 shadow-[-5px_0_15px_rgba(0,0,0,0.5)]">
                     <div class="w-3 h-20 bg-slate-900 rounded-r-md ml-1 shadow-inner"></div>
                 </div>
 
-                <!-- Painel de Controle (Conta Matemática) -->
-                <div id="math-panel" class="absolute z-20 flex flex-col items-center p-6 bg-slate-800 border-4 border-cyan-500 rounded-2xl neon-glow transition-all duration-500">
-                    <div class="text-cyan-400 text-sm font-bold mb-1 uppercase tracking-wider">Senha Necessária</div>
-                    
-                    <!-- Exibição da Conta -->
-                    <div id="problem-display" class="text-5xl md:text-6xl font-black text-white mb-4 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] tracking-wide">
-                        ? + ?
+                <!-- Painel de Controle Multidisciplinar -->
+                <div id="math-panel" class="absolute z-20 flex flex-col items-center p-6 bg-slate-800 border-4 border-cyan-500 rounded-2xl neon-glow transition-all duration-500 w-11/12 max-w-sm">
+
+                    <div id="level-badge" class="text-emerald-400 text-xs font-black mb-3 uppercase tracking-widest border border-emerald-500 px-3 py-1 rounded-full bg-emerald-900/40">
+                        Nível 1
                     </div>
-                    
-                    <!-- Formulário de Resposta -->
-                    <form id="answer-form" class="flex gap-2 w-full">
-                        <input type="number" id="answer-input" required placeholder="0" class="w-full text-center text-3xl font-bold rounded-lg border-2 border-cyan-500 bg-slate-900 text-cyan-300 focus:outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300 transition-all shadow-inner placeholder-slate-700">
+
+                    <!-- Exibição do Problema -->
+                    <div id="problem-display" class="text-lg md:text-xl font-bold text-white mb-5 drop-shadow-md text-center leading-snug w-full">
+                        Carregando banco de dados...
+                    </div>
+
+                    <form id="answer-form" class="flex gap-2 w-full mt-auto">
+                        <input type="number" id="answer-input" required placeholder="0" class="w-full text-center text-2xl font-bold rounded-lg border-2 border-cyan-500 bg-slate-900 text-cyan-300 focus:outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300 transition-all shadow-inner placeholder-slate-700">
                         <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-black text-lg py-2 px-6 rounded-lg border-b-4 border-cyan-700 active:border-b-0 active:translate-y-1 transition-all">
                             OK
                         </button>
@@ -118,47 +121,37 @@
 
         <!-- Lado Direito: O Robô e as Dicas -->
         <section class="flex-1 p-8 bg-slate-100 relative flex flex-col items-center justify-center">
-            
-            <!-- Balão de Fala -->
+
             <div class="relative w-full max-w-md bg-white border-4 border-slate-300 rounded-3xl p-5 shadow-lg mb-8 min-h-[100px] flex items-center justify-center transform transition-transform hover:scale-105 duration-300 z-10">
-                <!-- Setinha do balão apontando para baixo -->
                 <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[20px] border-t-white drop-shadow-md z-10"></div>
                 <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[18px] border-l-transparent border-r-[18px] border-r-transparent border-t-[24px] border-t-slate-300 z-0"></div>
-                
+
                 <p id="speech-text" class="text-xl font-bold text-slate-700 text-center leading-relaxed">
-                    Olá! Eu sou o Robô da Fatec. Houve um bug e as portas travaram! Resolva a continha para destrancar.
+                    Olá! O sistema bloqueou o acesso. Você precisará dos seus conhecimentos do Ensino Médio para passar.
                 </p>
             </div>
 
-            <!-- Mascote Robô (SVG criado via código) -->
+            <!-- Mascote Robô -->
             <div id="robot-container" class="relative">
                 <svg viewBox="0 0 100 100" class="w-48 h-48 drop-shadow-2xl animate-float">
-                    <!-- Antena -->
                     <line x1="50" y1="25" x2="50" y2="10" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
                     <circle cx="50" cy="8" r="5" fill="#EF4444" class="animate-pulse"/>
-                    <!-- Orelhas (Parafusos) -->
                     <rect x="20" y="45" width="5" height="15" rx="2" fill="#94A3B8"/>
                     <rect x="75" y="45" width="5" height="15" rx="2" fill="#94A3B8"/>
-                    <!-- Cabeça -->
                     <rect x="25" y="25" width="50" height="45" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="3"/>
                     <rect x="30" y="35" width="40" height="20" rx="6" fill="#0F172A"/>
-                    <!-- Olhos -->
                     <circle cx="40" cy="45" r="4" fill="#38BDF8" class="animate-blink"/>
                     <circle cx="60" cy="45" r="4" fill="#38BDF8" class="animate-blink"/>
-                    <!-- Boca feliz -->
                     <path id="robot-mouth" d="M 40 58 Q 50 63 60 58" stroke="#334155" stroke-width="3" fill="none" stroke-linecap="round"/>
-                    <!-- Corpo -->
                     <path d="M 30 75 Q 50 70 70 75 L 65 95 L 35 95 Z" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="3"/>
-                    <!-- Painel do Corpo -->
                     <circle cx="50" cy="85" r="6" fill="#10B981"/>
                 </svg>
             </div>
 
-            <!-- Contêiner de Dica Visual (Oculto inicialmente) -->
             <div id="visual-hint-container" class="hidden w-full max-w-md mt-6 bg-white rounded-2xl border-2 border-dashed border-slate-300 p-4 shadow-sm transition-all duration-500 opacity-0 transform translate-y-4">
-                <p class="text-sm font-bold text-slate-400 text-center mb-3 uppercase tracking-wider">Ajuda Visual</p>
-                <div id="visual-hint-area" class="flex flex-wrap justify-center items-center gap-2">
-                    <!-- Formas geradas pelo JS aparecerão aqui -->
+                <p class="text-sm font-bold text-slate-400 text-center mb-3 uppercase tracking-wider">Fórmula / Resolução</p>
+                <div id="visual-hint-area" class="w-full">
+                    <!-- Gerado dinamicamente -->
                 </div>
             </div>
 
@@ -167,7 +160,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Referências do DOM
             const problemDisplay = document.getElementById('problem-display');
             const answerInput = document.getElementById('answer-input');
             const answerForm = document.getElementById('answer-form');
@@ -180,194 +172,235 @@
             const visualHintContainer = document.getElementById('visual-hint-container');
             const visualHintArea = document.getElementById('visual-hint-area');
             const robotMouth = document.getElementById('robot-mouth');
+            const levelBadge = document.getElementById('level-badge');
 
-            // Estado do Jogo
-            let currentProblem = { n1: 0, n2: 0, op: '+', answer: 0 };
+            let currentLevel = 1;
+            let doorsUnlocked = 0;
+            const doorsToNextLevel = 3;
+
+            let currentProblem = { qText: '', answer: 0, hLogic: '', hVisual: '' };
             let errorCount = 0;
-            let isAnimating = false; // Previne múltiplos envios durante animações
+            let isAnimating = false;
 
-            // Gera um número aleatório entre min e max (inclusivo)
             const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-            // Função principal de geração de problemas
             function generateProblem() {
-                const operators = ['+', '-', 'x'];
-                const op = operators[Math.floor(Math.random() * operators.length)];
-                let n1, n2, answer;
+                const subjects = ['math', 'physics', 'chemistry'];
+                const subject = subjects[randomInt(0, 2)];
 
-                // Lógica adaptada para crianças
-                if (op === '+') {
-                    // Soma simples: resultados até 20
-                    n1 = randomInt(1, 10);
-                    n2 = randomInt(1, 10);
-                    answer = n1 + n2;
-                } else if (op === '-') {
-                    // Subtração: sem números negativos
-                    n1 = randomInt(5, 15);
-                    n2 = randomInt(1, n1); // n2 sempre menor ou igual a n1
-                    answer = n1 - n2;
-                } else if (op === 'x') {
-                    // Multiplicação: números pequenos para facilitar representação visual
-                    n1 = randomInt(2, 5);
-                    n2 = randomInt(2, 5);
-                    answer = n1 * n2;
+                let qText = "", answer = 0, hLogic = "", hVisual = "";
+
+                if (subject === 'math') {
+                    if (currentLevel === 1) {
+                        let a = randomInt(2, 5);
+                        let x = randomInt(3, 12);
+                        let b = randomInt(2, 15);
+                        let res = a * x + b;
+                        qText = `<span class="text-cyan-400 block mb-2">[Matemática] Álgebra Básica</span>Se ${a}x + ${b} = ${res}, qual o valor numérico de x?`;
+                        answer = x;
+                        hLogic = `Isole a incógnita <b>x</b>. Primeiro subtraia ${b} dos dois lados e depois divida o resultado por ${a}.`;
+                        hVisual = `<div>${a}x = ${res} - ${b}</div><div>x = ${res - b} / ${a}</div>`;
+                    }
+                    else if (currentLevel === 2) {
+                        if (Math.random() > 0.5) {
+                            let bases = [2, 3, 4, 5];
+                            let base = bases[randomInt(0, 3)];
+                            let exp = randomInt(2, 4);
+                            let res = Math.pow(base, exp);
+                            qText = `<span class="text-cyan-400 block mb-2">[Matemática] Logaritmos</span>Qual é o valor de log<sub>${base}</sub>(${res})?`;
+                            answer = exp;
+                            hLogic = `Pela definição de logaritmo, a que potência você deve elevar a base ${base} para obter ${res}?`;
+                            hVisual = `<div>${base}<sup>x</sup> = ${res}</div>`;
+                        } else {
+                            let n = randomInt(4, 6);
+                            qText = `<span class="text-cyan-400 block mb-2">[Matemática] Fatorial</span>Calcule o valor de ${n}!`;
+                            answer = n === 4 ? 24 : (n === 5 ? 120 : 720);
+                            hLogic = `O fatorial é a multiplicação do número por todos os seus antecessores inteiros até chegar em 1.`;
+                            let calc = n === 4 ? "4 × 3 × 2 × 1" : (n === 5 ? "5 × 4 × 3 × 2 × 1" : "6 × 5 × 4 × 3 × 2 × 1");
+                            hVisual = `<div class="whitespace-nowrap">${calc}</div>`;
+                        }
+                    }
+                    else {
+                        let m11 = randomInt(3, 6), m12 = randomInt(1, 2);
+                        let m21 = randomInt(1, 2), m22 = randomInt(3, 6);
+                        answer = (m11 * m22) - (m12 * m21);
+                        qText = `<span class="text-cyan-400 block mb-2">[Matemática] Matrizes</span>Calcule o determinante da matriz 2x2:<br>| ${m11} &nbsp;&nbsp; ${m12} |<br>| ${m21} &nbsp;&nbsp; ${m22} |`;
+                        hLogic = `O determinante de uma matriz 2x2 é o produto da diagonal principal subtraído do produto da diagonal secundária.`;
+                        hVisual = `<div class="whitespace-nowrap">Det = (${m11} × ${m22}) - (${m12} × ${m21})</div>`;
+                    }
+                }
+                else if (subject === 'physics') {
+                    if (currentLevel === 1) {
+                        let t = randomInt(2, 6);
+                        let v = randomInt(10, 30);
+                        let d = v * t;
+                        qText = `<span class="text-purple-400 block mb-2">[Física] Cinemática</span>Um móvel percorre ${d} metros em ${t} segundos. Qual a velocidade escalar média em m/s?`;
+                        answer = v;
+                        hLogic = `A fórmula da velocidade média é a variação de espaço (ΔS) dividida pela variação de tempo (Δt).`;
+                        hVisual = `<div>V<sub>m</sub> = ΔS / Δt</div><div>V = ${d} / ${t}</div>`;
+                    }
+                    else if (currentLevel === 2) {
+                        let m = randomInt(5, 25);
+                        let a = randomInt(2, 8);
+                        answer = m * a;
+                        qText = `<span class="text-purple-400 block mb-2">[Física] Dinâmica</span>Um corpo de massa ${m} kg possui aceleração constante de ${a} m/s².<br>Qual a força resultante (em Newtons)?`;
+                        hLogic = `Pela 2ª Lei de Newton (Princípio Fundamental da Dinâmica), a Força é o produto da massa pela aceleração.`;
+                        hVisual = `<div>F = m × a</div><div>F = ${m} × ${a}</div>`;
+                    }
+                    else {
+                        let R = randomInt(10, 50);
+                        let i = randomInt(2, 10);
+                        answer = R * i;
+                        qText = `<span class="text-purple-400 block mb-2">[Física] Eletrodinâmica</span>Um resistor ôhmico de ${R} Ω é percorrido por uma corrente de ${i} A.<br>Qual a ddp (tensão elétrica) em Volts?`;
+                        hLogic = `Pela 1ª Lei de Ohm, a diferença de potencial (U) é igual à resistência (R) vezes a intensidade da corrente (i).`;
+                        hVisual = `<div>U = R × i</div><div>U = ${R} × ${i}</div>`;
+                    }
+                }
+                else if (subject === 'chemistry') {
+                    if (currentLevel === 1) {
+                        let mols = [
+                            { name: 'H₂O (Água)', formula: 'H=1, O=16', ans: 18, calc: '2×(1) + 1×(16)' },
+                            { name: 'CH₄ (Metano)', formula: 'C=12, H=1', ans: 16, calc: '1×(12) + 4×(1)' },
+                            { name: 'NH₃ (Amônia)', formula: 'N=14, H=1', ans: 17, calc: '1×(14) + 3×(1)' }
+                        ];
+                        let mol = mols[randomInt(0, 2)];
+                        qText = `<span class="text-emerald-400 block mb-2">[Química] Estequiometria Básica</span>Qual a massa molar (g/mol) da molécula de ${mol.name}?<br><span class="text-sm font-normal text-slate-300">Dados: ${mol.formula}</span>`;
+                        answer = mol.ans;
+                        hLogic = `Identifique a quantidade de átomos de cada elemento, multiplique pela respectiva massa atômica e some os resultados.`;
+                        hVisual = `<div class="whitespace-nowrap">Massa = ${mol.calc}</div>`;
+                    }
+                    else if (currentLevel === 2) {
+                        let C = randomInt(5, 20);
+                        let V = randomInt(2, 5);
+                        let m1 = C * V;
+                        qText = `<span class="text-emerald-400 block mb-2">[Química] Soluções</span>Uma solução aquosa de volume ${V} L contém ${m1} g de soluto.<br>Qual a concentração comum desta solução (em g/L)?`;
+                        answer = C;
+                        hLogic = `A concentração comum é a razão entre a massa do soluto (em gramas) e o volume da solução (em litros).`;
+                        hVisual = `<div>C = m₁ / V</div><div>C = ${m1} / ${V}</div>`;
+                    }
+                    else {
+                        let hr = randomInt(100, 300);
+                        let hp = randomInt(400, 800);
+                        answer = hp - hr;
+                        qText = `<span class="text-emerald-400 block mb-2">[Química] Termoquímica</span>Numa reação endotérmica:<br>Entalpia dos reagentes = ${hr} kJ<br>Entalpia dos produtos = ${hp} kJ<br>Qual o ΔH da reação (em kJ)?`;
+                        hLogic = `A variação de entalpia (ΔH) é calculada subtraindo a entalpia inicial (reagentes) da entalpia final (produtos).`;
+                        // Whitespace-nowrap blinda a fórmula longa para não quebrar de forma errada
+                        hVisual = `<div class="whitespace-nowrap">ΔH = H<sub>produtos</sub> - H<sub>reagentes</sub></div><div>ΔH = ${hp} - ${hr}</div>`;
+                    }
                 }
 
-                currentProblem = { n1, n2, op, answer };
-                problemDisplay.textContent = `${n1} ${op} ${n2}`;
-                
-                // Reseta estado da interface
+                currentProblem = { qText, answer, hLogic, hVisual };
+
+                problemDisplay.innerHTML = qText;
+
                 errorCount = 0;
                 answerInput.value = '';
                 visualHintContainer.classList.add('hidden', 'opacity-0', 'translate-y-4');
-                speechText.innerHTML = "Nova porta detectada!<br>Qual é a resposta da continha?";
-                robotMouth.setAttribute('d', 'M 40 58 Q 50 63 60 58'); // Sorriso normal
+                speechText.innerHTML = "Painel ativado. Extraia os dados do enunciado e insira o valor numérico exato.";
+                robotMouth.setAttribute('d', 'M 40 58 Q 50 63 60 58');
                 answerInput.focus();
             }
 
-            
-            // Retorna o texto da dica de Lógica (1º Erro)
-            function getLogicHint(n1, n2, op) {
-                if (op === '+') {
-                    return `Pense assim: se você tem <b>${n1}</b> bloquinhos e ganha mais <b>${n2}</b>, com quantos você fica no total? Conte nos dedos!`;
-                } else if (op === '-') {
-                    return `Imagine que você tem <b>${n1}</b> balas. Se você comer <b>${n2}</b> delas, quantas vão sobrar para depois?`;
-                } else if (op === 'x') {
-                    let additionArr = Array(n1).fill(n2);
-                    let additionStr = additionArr.join(' + ');
-                    return `Multiplicar é somar várias vezes! É a mesma coisa que fazer:<br><b>${additionStr}</b>.<br>Quanto dá?`;
-                }
+            function drawVisualHint(visualHTML) {
+                // Modificado: display flex em coluna, com gap para espaçamento e overflow-x-auto
+                return `
+                <div class="flex flex-col items-center justify-center gap-4 font-['Fira_Code'] text-xl md:text-2xl text-slate-700 bg-slate-100 p-4 rounded-xl border-2 border-slate-300 w-full shadow-inner text-center overflow-x-auto custom-scrollbar">
+                    ${visualHTML}
+                </div>`;
             }
 
-            // Gera o HTML da dica Visual (2º Erro)
-            function drawVisualHint(n1, n2, op) {
-                let html = '';
-                
-                if (op === '+') {
-                    // Desenha círculos azuis + círculos verdes
-                    html += `<div class="flex flex-wrap justify-center items-center gap-1">`;
-                    for(let i=0; i<n1; i++) {
-                        html += `<div class="w-6 h-6 rounded-full bg-blue-400 shadow-sm border-2 border-blue-500 transform transition hover:scale-110"></div>`;
-                    }
-                    html += `<div class="text-3xl font-black text-slate-300 mx-2">+</div>`;
-                    for(let i=0; i<n2; i++) {
-                        html += `<div class="w-6 h-6 rounded-full bg-green-400 shadow-sm border-2 border-green-500 transform transition hover:scale-110"></div>`;
-                    }
-                    html += `</div>`;
-                } 
-                else if (op === '-') {
-                    // Desenha o total e faz um "X" nos que foram subtraídos
-                    html += `<div class="flex flex-wrap justify-center gap-2">`;
-                    for(let i=0; i<n1; i++) {
-                        if (i < (n1 - n2)) {
-                            // Sobraram
-                            html += `<div class="w-6 h-6 rounded bg-orange-400 shadow-sm border-2 border-orange-500"></div>`;
-                        } else {
-                            // Subtraídos (marcados com X)
-                            html += `<div class="relative w-6 h-6 rounded bg-slate-200 border-2 border-slate-300 opacity-60">
-                                <div class="absolute inset-0 flex justify-center items-center">
-                                    <div class="w-full h-1 bg-red-500 rotate-45 absolute rounded"></div>
-                                    <div class="w-full h-1 bg-red-500 -rotate-45 absolute rounded"></div>
-                                </div>
-                            </div>`;
-                        }
-                    }
-                    html += `</div>`;
-                } 
-                else if (op === 'x') {
-                    // Desenha grupos
-                    html += `<div class="flex flex-wrap justify-center gap-3">`;
-                    for(let i=0; i<n1; i++) {
-                        html += `<div class="flex gap-1 p-2 bg-purple-100 rounded-xl border-2 border-purple-200">`;
-                        for(let j=0; j<n2; j++) {
-                            html += `<div class="w-5 h-5 rounded-full bg-purple-500 shadow-sm"></div>`;
-                        }
-                        html += `</div>`;
-                    }
-                    html += `</div>`;
-                }
-                return html;
-            }
-
-            // Gerencia as falhas e exibe as dicas progressivas
             function handleMistake() {
                 errorCount++;
-                
-                // Animação de erro na porta
+
                 doorFrame.classList.remove('shake');
-                void doorFrame.offsetWidth; // Trigger reflow
+                void doorFrame.offsetWidth;
                 doorFrame.classList.add('shake');
                 answerInput.value = '';
                 answerInput.focus();
 
-                // Expressão triste/preocupada no robô
                 robotMouth.setAttribute('d', 'M 40 60 Q 50 55 60 60');
 
                 if (errorCount === 1) {
-                    // 1º Erro: Dica de Lógica (Texto)
-                    speechText.innerHTML = getLogicHint(currentProblem.n1, currentProblem.n2, currentProblem.op);
-                } 
+                    speechText.innerHTML = `<b>Dica de Revisão:</b><br>${currentProblem.hLogic}`;
+                }
                 else if (errorCount >= 2) {
-                    // 2º Erro ou mais: Dica Visual
-                    speechText.innerHTML = "Não desista! Olhe o <b>desenho</b> aqui embaixo e conte comigo para acharmos a resposta.";
-                    visualHintArea.innerHTML = drawVisualHint(currentProblem.n1, currentProblem.n2, currentProblem.op);
-                    
-                    // Mostra o contêiner com transição suave
+                    speechText.innerHTML = "Não perca o foco! Lembre-se da fórmula base desta matéria:";
+                    visualHintArea.innerHTML = drawVisualHint(currentProblem.hVisual);
+
                     visualHintContainer.classList.remove('hidden');
-                    // Pequeno delay para a classe de animação do Tailwind funcionar
                     setTimeout(() => {
                         visualHintContainer.classList.remove('opacity-0', 'translate-y-4');
                     }, 50);
                 }
             }
 
-            
-            // Gerencia o acerto e a animação da porta
             function handleSuccess() {
                 isAnimating = true;
-                
-                // Robô muito feliz
+                doorsUnlocked++;
+
+                let justLeveledUp = false;
+
+                if (doorsUnlocked % doorsToNextLevel === 0 && currentLevel < 3) {
+                    currentLevel++;
+                    justLeveledUp = true;
+
+                    if(currentLevel === 2) {
+                        levelBadge.textContent = "Nível 2";
+                        levelBadge.className = 'text-amber-400 text-xs font-black mb-3 uppercase tracking-widest border border-amber-500 px-3 py-1 rounded-full bg-amber-900/40';
+                    } else if (currentLevel === 3) {
+                        levelBadge.textContent = "Nível MÁXIMO";
+                        levelBadge.className = 'text-red-400 text-xs font-black mb-3 uppercase tracking-widest border border-red-500 px-3 py-1 rounded-full bg-red-900/40';
+                    }
+                }
+
                 robotMouth.setAttribute('d', 'M 35 55 Q 50 70 65 55');
-                speechText.innerHTML = "🎉 <b>ISSO AÍ!</b> Acesso liberado! Preparando a próxima porta...";
+
+                if (justLeveledUp) {
+                    if (currentLevel === 3) {
+                        speechText.innerHTML = `🚨 <b>ALERTA!</b> Você alcançou o <b>Nível MÁXIMO</b> do laboratório!<br>As questões de química e física agora são complexas.`;
+                    } else {
+                        speechText.innerHTML = `🧬 <b>EXCELENTE!</b> Você avançou para o <b>Nível ${currentLevel}</b>.<br>Os protocolos de segurança foram atualizados.`;
+                    }
+                } else {
+                    if (currentLevel === 3) {
+                        speechText.innerHTML = "🔥 <b>IMPECÁVEL!</b> Você está dominando o nível máximo. Preparando o próximo desafio...";
+                    } else {
+                        speechText.innerHTML = "✔️ <b>CÁLCULO EXATO!</b> Acesso liberado. Preparando a próxima porta...";
+                    }
+                }
+
                 visualHintContainer.classList.add('opacity-0');
 
-                // Animação da Porta
                 mathPanel.classList.add('opacity-0', 'scale-75', 'pointer-events-none');
-                
-                // Abre as metades
+
                 doorLeft.classList.add('-translate-x-full');
                 doorRight.classList.add('translate-x-full');
-                
-                // Revela fundo verde de sucesso
+
                 successBg.classList.remove('opacity-0');
 
-                // Aguarda a animação e gera a próxima conta
                 setTimeout(() => {
-                    // Fecha a porta para a nova conta
                     doorLeft.classList.remove('-translate-x-full');
                     doorRight.classList.remove('translate-x-full');
                     successBg.classList.add('opacity-0');
-                    
-                    // Restaura o painel matemático após a porta fechar
+
                     setTimeout(() => {
                         mathPanel.classList.remove('opacity-0', 'scale-75', 'pointer-events-none');
                         generateProblem();
                         isAnimating = false;
-                    }, 800); // tempo que a porta demora pra fechar
+                    }, 800);
 
-                }, 3000); // Tempo que a porta fica aberta mostrando "Acesso Liberado"
+                }, justLeveledUp ? 4000 : 2500);
             }
 
-            // Event Listener do Formulário
             answerForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (isAnimating) return;
 
                 const userAnswer = parseInt(answerInput.value, 10);
-                
+
                 if (isNaN(userAnswer)) {
                     answerInput.focus();
-                    return; // Ignora se estiver vazio
+                    return;
                 }
 
                 if (userAnswer === currentProblem.answer) {
@@ -377,7 +410,6 @@
                 }
             });
 
-            // Inicializa a primeira conta
             generateProblem();
         });
     </script>
